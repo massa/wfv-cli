@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build
+      run: |
+        cmake .
+        cmake --build . --config Release
+      shell: bash
+
+    - name: Prepare Artifacts
+      run: |
+        mkdir -p artifacts/{windows,macos,linux}
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          mv Release/wfv.exe artifacts/windows/wfv.exe
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          mv Release/wfv artifacts/macos/wfv
+        else
+          mv Release/wfv artifacts/linux/wfv
+        fi
+      shell: bash
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wfv
+        path: artifacts/${{ matrix.os }}/
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist/
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/wfv-ubuntu-latest/linux/wfv
+          dist/wfv-macos-latest/macos/wfv
+          dist/wfv-windows-latest/windows/wfv.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
