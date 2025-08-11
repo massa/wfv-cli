@@ -19,19 +19,18 @@ jobs:
 
     - name: Build
       run: |
-        cmake .
-        cmake --build . --config Release
+        mkdir -p $BUILD_DIR && cd $BUILD_DIR && cmake --config Release .. && make
       shell: bash
 
     - name: Prepare Artifacts
       run: |
         mkdir -p artifacts/{windows,macos,linux}
         if [ "${{ runner.os }}" == "Windows" ]; then
-          mv Release/wfv.exe artifacts/windows/wfv.exe
+          mv $BUILD_DIR/Release/wfv.exe artifacts/windows/wfv.exe
         elif [ "${{ runner.os }}" == "macOS" ]; then
-          mv Release/wfv artifacts/macos/wfv
+          mv $BUILD_DIR/Release/wfv artifacts/macos/wfv
         else
-          mv Release/wfv artifacts/linux/wfv
+          mv $BUILD_DIR/Release/wfv artifacts/linux/wfv
         fi
       shell: bash
 

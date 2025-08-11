@@ -14,8 +14,8 @@ ExternalProject_Add(
   )
 
 project(wfv)
-SET(CMAKE_CXX_STANDARD 23)
+SET(CMAKE_CXX_STANDARD 26)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 add_executable(${PROJECT_NAME} wfv.cc)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/_deps/src/pe_lib/pe_lib/)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/_deps/src/pe_lib/lib/libpebliss.a -static)
-
